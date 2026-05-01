@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserDashboardShell from "./UserDashboardShell";
 import { apiRequest } from "../../lib/api";
-
+import pakistanCities from "../../data/pakistanCities";
 const initialForm = {
   pickupCity: "",
   destinationCity: "",
@@ -58,8 +58,33 @@ export default function PostShipmentPage() {
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Pickup city" name="pickupCity" value={form.pickupCity} onChange={handleChange} required />
-            <Field label="Destination city" name="destinationCity" value={form.destinationCity} onChange={handleChange} required />
+            
+            
+            <SelectField
+  label="Pickup city"
+  name="pickupCity"
+  value={form.pickupCity}
+  onChange={handleChange}
+  required
+  options={pakistanCities}
+/>
+
+<SelectField
+  label="Destination city"
+  name="destinationCity"
+  value={form.destinationCity}
+  onChange={handleChange}
+  required
+  options={pakistanCities}
+/>
+            
+            
+            
+            
+            
+            
+            
+            
             <Field label="Pickup date" name="pickupDate" type="date" value={form.pickupDate} onChange={handleChange} required />
             <Field label="Preferred delivery date" name="preferredDeliveryDate" type="date" value={form.preferredDeliveryDate} onChange={handleChange} />
             <Field label="Parcel category" name="parcelCategory" value={form.parcelCategory} onChange={handleChange} required />
