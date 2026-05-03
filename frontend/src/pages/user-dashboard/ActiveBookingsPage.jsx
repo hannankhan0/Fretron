@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import UserDashboardShell from "./UserDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 export default function ActiveBookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadBookings() {
     try {
@@ -16,8 +18,9 @@ export default function ActiveBookingsPage() {
   }
 
   useEffect(() => {
+    if (!apiReady) return;
     loadBookings();
-  }, []);
+  }, [apiReady]);
 
   async function respond(id, action) {
     try {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import UserDashboardShell from "./UserDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 function SkeletonCard() {
   return (
@@ -29,6 +30,7 @@ export default function BrowseDriversPage() {
   const [selectedShipmentByRoute, setSelectedShipmentByRoute] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadData() {
     try {
@@ -46,7 +48,7 @@ export default function BrowseDriversPage() {
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { if (!apiReady) return; loadData(); }, [apiReady]);
 
   async function handleRequest(routeId) {
     const shipmentId = selectedShipmentByRoute[routeId];

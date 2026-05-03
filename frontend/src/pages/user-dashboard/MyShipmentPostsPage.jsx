@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import UserDashboardShell from "./UserDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 function SkeletonRow() {
   return (
@@ -18,6 +19,7 @@ export default function MyShipmentPostsPage() {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadShipments() {
     try {
@@ -31,7 +33,7 @@ export default function MyShipmentPostsPage() {
     }
   }
 
-  useEffect(() => { loadShipments(); }, []);
+  useEffect(() => { if (!apiReady) return; loadShipments(); }, [apiReady]);
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this shipment post?")) return;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DriverDashboardShell from "./DriverDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 function SkeletonCard() {
   return (
@@ -29,13 +30,14 @@ export default function BrowseShipmentRequestsPage() {
   const [selectedRouteByShipment, setSelectedRouteByShipment] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadData() {
     try {
       setLoading(true);
       const [shipmentsRes, routesRes] = await Promise.all([
         apiRequest("/shipments"),
-        apiRequest("/routes/my?status=published"),
+        apiRequest("/routes/my?status=published", { headers: { "X-Fretron-Mode": "driver" } }),
       ]);
       setShipments(shipmentsRes.shipments || []);
       setRoutes(routesRes.routes || []);
@@ -46,7 +48,7 @@ export default function BrowseShipmentRequestsPage() {
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { if (!apiReady) return; loadData(); }, [apiReady]);
 
   async function handleOffer(shipmentId) {
     const routeId = selectedRouteByShipment[shipmentId];

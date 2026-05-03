@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import UserDashboardShell from "./UserDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 export default function BookingHistoryPage() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   useEffect(() => {
+    if (!apiReady) return;
     (async () => {
       try {
         const res = await apiRequest("/bookings/my-user?scope=history");
@@ -15,7 +18,7 @@ export default function BookingHistoryPage() {
         setError(err.message || "Failed to load booking history");
       }
     })();
-  }, []);
+  }, [apiReady]);
 
   return (
     <UserDashboardShell

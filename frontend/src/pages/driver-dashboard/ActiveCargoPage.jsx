@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import DriverDashboardShell from "./DriverDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 export default function ActiveCargoPage() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadBookings() {
     try {
-      const res = await apiRequest("/bookings/my-driver?scope=active");
+      const res = await apiRequest("/bookings/my-driver?scope=active", {
+        headers: { "X-Fretron-Mode": "driver" },
+      });
       setBookings(res.bookings || []);
     } catch (err) {
       setError(err.message || "Failed to load active cargo");
@@ -16,8 +20,9 @@ export default function ActiveCargoPage() {
   }
 
   useEffect(() => {
+    if (!apiReady) return;
     loadBookings();
-  }, []);
+  }, [apiReady]);
 
   async function respond(id, action) {
     try {

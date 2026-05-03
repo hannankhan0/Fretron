@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DriverDashboardShell from "./DriverDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 function SkeletonRow() {
   return (
@@ -18,11 +19,14 @@ export default function MyRoutePostsPage() {
   const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   async function loadRoutes() {
     try {
       setLoading(true);
-      const res = await apiRequest("/routes/my");
+      const res = await apiRequest("/routes/my", {
+        headers: { "X-Fretron-Mode": "driver" },
+      });
       setRoutes(res.routes || []);
     } catch (err) {
       setError(err.message || "Failed to load routes");
@@ -31,7 +35,7 @@ export default function MyRoutePostsPage() {
     }
   }
 
-  useEffect(() => { loadRoutes(); }, []);
+  useEffect(() => { if (!apiReady) return; loadRoutes(); }, [apiReady]);
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this route post?")) return;

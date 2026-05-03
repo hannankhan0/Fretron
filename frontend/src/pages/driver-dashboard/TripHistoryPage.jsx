@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
 import DriverDashboardShell from "./DriverDashboardShell";
 import { apiRequest } from "../../lib/api";
+import { useClerkApi } from "../../lib/useClerkApi";
 
 export default function TripHistoryPage() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
+  const apiReady = useClerkApi();
 
   useEffect(() => {
+    if (!apiReady) return;
     (async () => {
       try {
-        const res = await apiRequest("/bookings/my-driver?scope=history");
+        const res = await apiRequest("/bookings/my-driver?scope=history", {
+          headers: { "X-Fretron-Mode": "driver" },
+        });
         setBookings(res.bookings || []);
       } catch (err) {
         setError(err.message || "Failed to load trip history");
       }
     })();
-  }, []);
+  }, [apiReady]);
 
   return (
     <DriverDashboardShell

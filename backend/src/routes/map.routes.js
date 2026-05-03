@@ -169,4 +169,80 @@ router.get("/route", async (req, res, next) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/maps/reverse?lat=&lng=
+// Reverse geocode a lat/lng to a Pakistani address via Nominatim
+// ─────────────────────────────────────────────────────────────────────────────
+router.get("/reverse", async (req, res, next) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ success: false, message: "lat and lng are required numbers" });
+    }
+
+    const url = new URL("https://nominatim.openstreetmap.org/reverse");
+    url.searchParams.set("lat", lat.toFixed(6));
+    url.searchParams.set("lon", lng.toFixed(6));
+    url.searchParams.set("format", "json");
+    url.searchParams.set("zoom", "14");        // neighbourhood level
+    url.searchParams.set("addressdetails", "1");
+    url.searchParams.set("accept-language", "en");
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        "User-Agent": "Fretron/1.0 intercity-logistics-platform (contact@fretron.com)",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+    });
+
+    if (!response.ok) {
+      return res.status(502).json({ success: false, message: "Reverse geocoding service unavailable" });
+    }
+
+    const data = await response.json();
+
+    if (data.error) {
+      return res.status(404).json({ success: false, message: "No location found at these coordinates" });
+    }
+
+    const addr = data.address || {};
+    const name =
+      addr.neighbourhood ||
+      addr.suburb ||
+      addr.city_district ||
+      addr.city ||
+      addr.town ||
+      addr.village ||
+      addr.county ||
+      data.display_name?.split(",")[0]?.trim() ||
+      "Current location";
+
+    const city = addr.city || addr.town || addr.village || addr.county || "";
+    const state = addr.state || addr.state_district || "";
+
+    const labelParts = data.display_name
+      ?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 4) || [];
+
+    const place = {
+      lat: parseFloat(data.lat),
+      lng: parseFloat(data.lon),
+      name,
+      city,
+      state,
+      country: addr.country || "Pakistan",
+      label: labelParts.join(", "),
+      place_id: data.place_id,
+    };
+
+    return res.json({ success: true, place });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
