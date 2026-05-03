@@ -18,8 +18,25 @@ async function findUserByClerkId(clerkId) {
 }
 
 export const requireAuth = asyncHandler(async (req, _res, next) => {
-  const token = req.cookies?.[env.cookieName];
+  // ── 1. Clerk first (SPA / Clerk-based users send Bearer token) ───────────
+  // Clerk MUST be checked before the JWT cookie so that a stale local-auth
+  // cookie cannot shadow a valid Clerk session.
+  const auth = getAuth(req, { acceptsToken: 'any' });
+  if (auth?.userId) {
+    const user = await findUserByClerkId(auth.userId);
+    if (!user) {
+      throw new ApiError(404, 'User not synced with Fretron database');
+    }
+    if (!user.is_active) {
+      throw new ApiError(403, 'Your account is inactive');
+    }
+    req.user = user;
+    req.clerkUserId = auth.userId;
+    return next();
+  }
 
+  // ── 2. Fallback: JWT cookie (admin / legacy local-auth users) ────────────
+  const token = req.cookies?.[env.cookieName];
   if (token) {
     let decoded;
     try {
@@ -29,29 +46,12 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
     }
 
     const user = await findUserById(decoded.userId);
-
     if (!user) {
       throw new ApiError(401, 'User not found');
     }
-
     req.user = user;
     return next();
   }
 
-  const auth = getAuth(req, { acceptsToken: 'any' });
-  if (!auth?.userId) {
-    throw new ApiError(401, 'Authentication required');
-  }
-
-  const user = await findUserByClerkId(auth.userId);
-  if (!user) {
-    throw new ApiError(404, 'User not synced with Fretron database');
-  }
-  if (!user.is_active) {
-    throw new ApiError(403, 'Your account is inactive');
-  }
-
-  req.user = user;
-  req.clerkUserId = auth.userId;
-  next();
+  throw new ApiError(401, 'Authentication required');
 });

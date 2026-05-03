@@ -4,81 +4,151 @@ const router = Router();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/maps/search?q=<query>
-// Uses Nominatim (OpenStreetMap) restricted to Pakistan (countrycodes=pk)
-// Replaces Photon which had poor Pakistan coverage
+//
+// Strategy:
+//   1. Photon (Komoot) — Elasticsearch-backed OSM geocoder, best for POI/
+//      institution searches (e.g. "FAST University Lahore").  Pakistan bbox
+//      restricts results to [60.8, 23.6, 77.0, 37.1].
+//   2. Nominatim fallback — if Photon returns < 2 results, run Nominatim
+//      with countrycodes=pk for city/area precision.
+//   Results are merged, de-duplicated, and filtered to Pakistan only.
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Pakistan bounding box [west, south, east, north]
+const PK_BBOX = "60.8,23.6,77.0,37.1";
+
+function normPhoton(features) {
+  return features.map((f) => {
+    const p   = f.properties || {};
+    const coords = f.geometry?.coordinates || [0, 0]; // [lng, lat]
+
+    const nameParts = [p.name, p.street, p.district, p.city, p.state]
+      .filter(Boolean);
+
+    const name  = p.name || p.city || p.district || coords.join(", ");
+    const city  = p.city || p.district || p.county || "";
+    const state = p.state || "";
+
+    const label = nameParts.slice(0, 4).join(", ") || name;
+
+    return {
+      label,
+      name,
+      city,
+      state,
+      country: p.country || "Pakistan",
+      lat: coords[1],
+      lng: coords[0],
+      osm_type: p.osm_type || "",
+      place_id: `${p.osm_type}_${p.osm_id}`,
+    };
+  });
+}
+
+function normNominatim(items) {
+  return items.map((item) => {
+    const addr = item.address || {};
+    const name =
+      item.namedetails?.name ||
+      addr.amenity ||
+      addr.building ||
+      addr.neighbourhood ||
+      addr.suburb ||
+      addr.city ||
+      addr.town ||
+      addr.village ||
+      addr.municipality ||
+      addr.county ||
+      item.display_name.split(",")[0].trim();
+
+    const city  = addr.city || addr.town || addr.village || addr.county || "";
+    const state = addr.state || addr.state_district || "";
+
+    const label = item.display_name
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 4)
+      .join(", ");
+
+    return {
+      label,
+      name,
+      city,
+      state,
+      country: "Pakistan",
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      osm_type: item.osm_type,
+      place_id: String(item.place_id),
+    };
+  });
+}
+
 router.get("/search", async (req, res, next) => {
   try {
     const q = String(req.query.q || "").trim();
+    if (!q || q.length < 2) return res.json({ success: true, results: [] });
 
-    if (!q || q.length < 2) {
-      return res.json({ success: true, results: [] });
-    }
+    const UA = "Fretron/1.0 intercity-logistics-platform (contact@fretron.com)";
+    const seen = new Set();
+    let results = [];
 
-    const url = new URL("https://nominatim.openstreetmap.org/search");
-    url.searchParams.set("q", q);
-    url.searchParams.set("format", "json");
-    url.searchParams.set("limit", "8");
-    url.searchParams.set("countrycodes", "pk"); // Pakistan only
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("dedupe", "1");
-    url.searchParams.set("accept-language", "en");
+    // ── 1. Photon (primary) ──────────────────────────────────────────────────
+    try {
+      const photonUrl = new URL("https://photon.komoot.io/api/");
+      photonUrl.searchParams.set("q", q);
+      photonUrl.searchParams.set("limit", "10");
+      photonUrl.searchParams.set("bbox", PK_BBOX);
+      photonUrl.searchParams.set("lang", "en");
 
-    const response = await fetch(url.toString(), {
-      headers: {
-        // Nominatim requires a descriptive User-Agent per usage policy
-        "User-Agent": "Fretron/1.0 intercity-logistics-platform (contact@fretron.com)",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-    });
-
-    if (!response.ok) {
-      return res.status(502).json({
-        success: false,
-        message: "Location search service unavailable",
+      const photonRes = await fetch(photonUrl.toString(), {
+        headers: { "User-Agent": UA },
+        signal: AbortSignal.timeout(4000),
       });
+
+      if (photonRes.ok) {
+        const photonData = await photonRes.json();
+        const features   = (photonData.features || []).filter((f) => {
+          const country = (f.properties?.country || "").toLowerCase();
+          return country === "pakistan" || country === "";
+        });
+
+        results = normPhoton(features);
+        results.forEach((r) => seen.add(r.place_id));
+      }
+    } catch { /* Photon timeout or unreachable — fall through */ }
+
+    // ── 2. Nominatim fallback / supplement ───────────────────────────────────
+    if (results.length < 3) {
+      try {
+        const nomUrl = new URL("https://nominatim.openstreetmap.org/search");
+        nomUrl.searchParams.set("q", q);
+        nomUrl.searchParams.set("format", "json");
+        nomUrl.searchParams.set("limit", "8");
+        nomUrl.searchParams.set("countrycodes", "pk");
+        nomUrl.searchParams.set("addressdetails", "1");
+        nomUrl.searchParams.set("namedetails", "1");
+        nomUrl.searchParams.set("dedupe", "1");
+        nomUrl.searchParams.set("accept-language", "en");
+
+        const nomRes = await fetch(nomUrl.toString(), {
+          headers: { "User-Agent": UA, "Accept-Language": "en-US,en;q=0.9" },
+          signal: AbortSignal.timeout(5000),
+        });
+
+        if (nomRes.ok) {
+          const nomData = await nomRes.json();
+          const extra   = normNominatim(nomData).filter(
+            (r) => !seen.has(r.place_id)
+          );
+          results = [...results, ...extra];
+        }
+      } catch { /* Nominatim unreachable */ }
     }
 
-    const data = await response.json();
-
-    const results = data.map((item) => {
-      const addr = item.address || {};
-
-      // Best human-readable name for Pakistani locations
-      const name =
-        addr.city ||
-        addr.town ||
-        addr.village ||
-        addr.municipality ||
-        addr.county ||
-        item.display_name.split(",")[0].trim();
-
-      const city =
-        addr.city || addr.town || addr.village || addr.county || "";
-
-      const state = addr.state || addr.state_district || "";
-
-      // Concise label: first 4 parts of Nominatim's display_name
-      const label = item.display_name
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 4)
-        .join(", ");
-
-      return {
-        label,
-        name,
-        city,
-        state,
-        country: "Pakistan",
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-        osm_type: item.osm_type,
-        place_id: item.place_id,
-      };
-    });
-
+    // Trim to 8 unique results
+    results = results.slice(0, 8);
     return res.json({ success: true, results });
   } catch (error) {
     next(error);

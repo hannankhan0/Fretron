@@ -11,12 +11,40 @@ export function requireRole(...roles) {
   };
 }
 
+/**
+ * requireApprovedRole(...roles)
+ *
+ * Business rules:
+ *  • Every Clerk-synced user has account_status = 'approved' and role = 'user'.
+ *  • A user who applied for driver and was approved has an
+ *    approved driver_profiles row.  users.role stays 'user' — driver status
+ *    lives ONLY in driver_profiles.verification_status.
+ *  • Drivers keep full access to all user-facing endpoints.
+ *
+ * Role semantics handled here:
+ *  requireApprovedRole('user')         → any approved account (user OR driver)
+ *  requireApprovedRole('driver')       → only approved drivers; sets req.user.role='driver'
+ *  requireApprovedRole('user','driver')→ any approved account; sets role='driver' when
+ *                                         X-Fretron-Mode: driver header present
+ */
 export function requireApprovedRole(...roles) {
   return async (req, _res, next) => {
     try {
       if (!req.user) return next(new ApiError(401, 'Authentication required'));
 
-      // Always check for approved driver profile – drivers can act as users too
+      // ── Account must be active and approved ───────────────────────────────
+      if (req.user.account_status !== 'approved') {
+        return next(new ApiError(403, 'Your account is not approved yet'));
+      }
+
+      // ── User-only endpoint: any approved account passes ───────────────────
+      // Implements "a driver is always a user too" — no DB query needed.
+      const needsDriverAccess = roles.includes('driver');
+      if (!needsDriverAccess) {
+        return next();
+      }
+
+      // ── Driver-required endpoint: check driver_profiles ───────────────────
       const [profiles] = await pool.execute(
         `SELECT id, verification_status FROM driver_profiles WHERE user_id = ? LIMIT 1`,
         [req.user.id]
@@ -28,32 +56,25 @@ export function requireApprovedRole(...roles) {
         req.driverProfile = driverProfile;
       }
 
-      // If endpoint requires driver and user is an approved driver → allow
-      if (roles.includes('driver') && isApprovedDriver) {
-        const isDriverMode =
-          (roles.length === 1 && roles[0] === 'driver') ||
-          req.get('x-fretron-mode') === 'driver';
+      const needsUserAccess  = roles.includes('user');
+      const driverModeHeader = req.get('x-fretron-mode') === 'driver';
 
-        if (isDriverMode) {
-          req.user = { ...req.user, role: 'driver' };
-          return next();
+      if (needsDriverAccess && !needsUserAccess) {
+        // Pure driver endpoint (e.g. GET /routes/my)
+        if (!isApprovedDriver) {
+          return next(new ApiError(403, 'You are not an approved driver'));
         }
+        req.user = { ...req.user, role: 'driver' };
+        return next();
       }
 
-      // Build effective role set: approved drivers also carry 'user' privileges
-      const effectiveRoles = new Set([req.user.role]);
-      if (isApprovedDriver) {
-        effectiveRoles.add('driver');
-        effectiveRoles.add('user'); // drivers can always access user endpoints
-      }
-
-      const hasRole = roles.some((r) => effectiveRoles.has(r));
-      if (!hasRole) {
-        return next(new ApiError(403, 'You are not allowed to access this resource'));
-      }
-
-      if (req.user.account_status !== 'approved') {
-        return next(new ApiError(403, 'Your account is not approved yet'));
+      // Mixed user+driver endpoint (e.g. POST /bookings)
+      // Act as driver only when header present AND user is approved driver
+      if (needsDriverAccess && needsUserAccess) {
+        if (driverModeHeader && isApprovedDriver) {
+          req.user = { ...req.user, role: 'driver' };
+        }
+        return next();
       }
 
       next();

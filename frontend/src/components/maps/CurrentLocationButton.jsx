@@ -1,69 +1,127 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { apiRequest } from "../../lib/api";
+
+const GPS_WINDOW_MS = 8000;   // max time to collect readings
+const GPS_MIN_GOOD  = 20;     // stop early if accuracy ≤ 20 m
 
 /**
  * CurrentLocationButton
- * Detects user's GPS position, reverse-geocodes it via /api/maps/reverse,
- * and calls onLocation(place) with a full place object.
+ * Uses watchPosition to collect multiple GPS fixes and pick the most
+ * accurate one (lowest accuracy value = tightest circle).
+ * Stops early if a ≤20 m fix is obtained; otherwise uses the best
+ * reading after GPS_WINDOW_MS.
  *
  * Props:
- *   onLocation(place)  — called with {lat,lng,name,city,label,...}
+ *   onLocation(place)  — called with {lat,lng,name,city,label,_fromGps,_accuracy}
  *   compact            — if true, icon-only button (no text)
  */
 export default function CurrentLocationButton({ onLocation, compact = false }) {
-  const [state, setState] = useState("idle"); // idle | locating | error
+  const [state, setState]     = useState("idle");   // idle | locating | error
+  const [accuracy, setAccuracy] = useState(null);   // live accuracy in metres
   const [errorMsg, setErrorMsg] = useState("");
 
-  async function handleClick() {
+  const watchIdRef  = useRef(null);
+  const bestRef     = useRef(null);   // { lat, lng, accuracy }
+  const timerRef    = useRef(null);
+  const doneRef     = useRef(false);  // guard against double-resolution
+
+  function stopWatch() {
+    if (watchIdRef.current != null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    clearTimeout(timerRef.current);
+  }
+
+  async function useReading({ lat, lng, accuracy: acc }) {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    stopWatch();
+
+    try {
+      const res   = await apiRequest(`/maps/reverse?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}`);
+      const place = { ...res.place, _fromGps: true, _accuracy: Math.round(acc) };
+      onLocation(place);
+    } catch {
+      onLocation({
+        lat,
+        lng,
+        name:    "Current location",
+        city:    "",
+        state:   "",
+        country: "Pakistan",
+        label:   `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        _fromGps:   true,
+        _accuracy:  Math.round(acc),
+      });
+    }
+
+    setState("idle");
+    setAccuracy(null);
+  }
+
+  function handleClick() {
     if (!navigator.geolocation) {
       setState("error");
       setErrorMsg("Location not supported in this browser");
       return;
     }
 
+    // Reset
+    doneRef.current = false;
+    bestRef.current = null;
     setState("locating");
+    setAccuracy(null);
     setErrorMsg("");
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lng, accuracy } = pos.coords;
-        try {
-          const res = await apiRequest(
-            `/maps/reverse?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}`
-          );
-          const place = { ...res.place, _fromGps: true, _accuracy: Math.round(accuracy) };
-          onLocation(place);
-          setState("idle");
-        } catch {
-          // Fallback: bare coords if reverse geocoding fails
-          onLocation({
-            lat,
-            lng,
-            name: "Current location",
-            city: "",
-            state: "",
-            country: "Pakistan",
-            label: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
-            _fromGps: true,
-            _accuracy: Math.round(accuracy),
-          });
-          setState("idle");
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
+
+        // Update live accuracy display
+        setAccuracy(Math.round(acc));
+
+        // Keep best (most accurate) reading
+        if (!bestRef.current || acc < bestRef.current.accuracy) {
+          bestRef.current = { lat, lng, accuracy: acc };
+        }
+
+        // Stop early if we already have a good enough fix
+        if (acc <= GPS_MIN_GOOD) {
+          useReading(bestRef.current);
         }
       },
       (err) => {
+        if (doneRef.current) return;
+        doneRef.current = true;
+        stopWatch();
         setState("error");
         if (err.code === err.PERMISSION_DENIED) {
           setErrorMsg("Location permission denied");
         } else if (err.code === err.POSITION_UNAVAILABLE) {
           setErrorMsg("Location unavailable");
         } else {
-          setErrorMsg("Location timed out");
+          setErrorMsg("Could not get location");
         }
-        // Clear error after 3 s
-        setTimeout(() => { setState("idle"); setErrorMsg(""); }, 3000);
+        setTimeout(() => { setState("idle"); setErrorMsg(""); setAccuracy(null); }, 3500);
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
     );
+
+    // After GPS_WINDOW_MS use the best reading we collected, whatever it is
+    timerRef.current = setTimeout(() => {
+      if (doneRef.current) return;
+      if (bestRef.current) {
+        useReading(bestRef.current);
+      } else {
+        // watchPosition errored or produced nothing yet — show error
+        doneRef.current = true;
+        stopWatch();
+        setState("error");
+        setErrorMsg("Could not get location — try again");
+        setTimeout(() => { setState("idle"); setErrorMsg(""); setAccuracy(null); }, 3500);
+      }
+    }, GPS_WINDOW_MS);
   }
 
   const isLocating = state === "locating";
@@ -90,12 +148,15 @@ export default function CurrentLocationButton({ onLocation, compact = false }) {
       >
         {isLocating ? (
           <>
-            {/* Pulsing GPS dot */}
             <span className="relative flex h-3 w-3 flex-none">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500" />
             </span>
-            {!compact && <span>Locating…</span>}
+            {!compact && (
+              <span>
+                {accuracy != null ? `Locating… ±${accuracy}m` : "Locating…"}
+              </span>
+            )}
           </>
         ) : isError ? (
           <>
@@ -104,7 +165,6 @@ export default function CurrentLocationButton({ onLocation, compact = false }) {
           </>
         ) : (
           <>
-            {/* GPS crosshair icon */}
             <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5 flex-none" stroke="currentColor" strokeWidth="1.8">
               <circle cx="10" cy="10" r="3.5" />
               <line x1="10" y1="1" x2="10" y2="5" />
