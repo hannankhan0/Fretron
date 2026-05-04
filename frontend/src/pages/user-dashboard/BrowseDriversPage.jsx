@@ -5,7 +5,7 @@ import { useClerkApi } from "../../lib/useClerkApi";
 
 function SkeletonCard() {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
+    <div className="glass rounded-3xl p-6 shadow-sm">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl flex-1 space-y-3">
           <div className="skeleton h-7 w-48" />
@@ -93,8 +93,8 @@ export default function BrowseDriversPage() {
             <SkeletonCard />
           </>
         ) : routes.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
-            <div className="animate-float mx-auto mb-4 text-5xl">🚚</div>
+          <div className="glass glass-hover rounded-3xl p-10 text-center shadow-sm">
+            <div className="animate-fade-in-scale mx-auto mb-4 text-5xl">🚚</div>
             <p className="text-base font-medium text-slate-500 dark:text-slate-400">
               No driver routes available right now.
             </p>
@@ -106,7 +106,7 @@ export default function BrowseDriversPage() {
           routes.map((route) => (
             <article
               key={route.id}
-              className="fretron-card rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50"
+              className="glass glass-hover rounded-3xl p-6 shadow-sm"
             >
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-3xl">
@@ -114,7 +114,7 @@ export default function BrowseDriversPage() {
                     <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">
                       {route.driver_name}
                     </h2>
-                    <span className="badge-available rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    <span className="glass-badge rounded-full px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                       Available
                     </span>
                   </div>
@@ -141,7 +141,7 @@ export default function BrowseDriversPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-700/50 dark:text-slate-400">
+                  <div className="mt-4 rounded-2xl glass px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                     {route.operational_notes || "No extra notes."}
                   </div>
                 </div>
@@ -152,7 +152,7 @@ export default function BrowseDriversPage() {
                     onChange={(e) =>
                       setSelectedShipmentByRoute((prev) => ({ ...prev, [route.id]: e.target.value }))
                     }
-                    className="fretron-input rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-400"
+                    className="fretron-input glass-input rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100 dark:focus:border-blue-400"
                   >
                     <option value="">Select your shipment post</option>
                     {shipments.map((shipment) => (

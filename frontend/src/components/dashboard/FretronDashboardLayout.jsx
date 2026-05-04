@@ -50,9 +50,9 @@ export default function FretronDashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 mesh-gradient">
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="relative z-[3000] border-r border-slate-200 bg-slate-950 px-5 py-6 text-white">
+        <aside className="relative z-[3000] border-r border-white/10 glass-sidebar px-5 py-6 text-white shadow-[12px_0_30px_-24px_rgba(15,23,42,0.8)]">
           <button
             onClick={() => navigate("/")}
             className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3 text-left transition hover:bg-white/10"
@@ -70,7 +70,7 @@ export default function FretronDashboardLayout({
             </div>
           </button>
 
-          <div className="mt-8 rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/20 to-slate-800/40 p-4">
+          <div className="mt-8 rounded-3xl glass-dark glass-shimmer p-4">
             <div className="text-xs uppercase tracking-[0.24em] text-blue-200/90">
               Portal
             </div>
@@ -91,7 +91,7 @@ export default function FretronDashboardLayout({
                 end={item.end}
                 className={({ isActive }) =>
                   classNames(
-                    "flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition",
+                    "nav-glow flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition",
                     isActive
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-900/30"
                       : "text-slate-300 hover:bg-white/5 hover:text-white"
@@ -106,7 +106,7 @@ export default function FretronDashboardLayout({
 
         <main className="relative min-w-0 overflow-hidden">
           {!hideHeader && (
-            <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+            <header className="sticky top-0 z-20 glass-header border-b border-white/20 dark:border-slate-800">
               <div className="flex flex-col gap-4 px-6 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-10">
                 <div>
                   {badge && (
@@ -128,7 +128,7 @@ export default function FretronDashboardLayout({
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-2">
                   {actions}
                   <button
                     onClick={toggleDark}
@@ -151,8 +151,8 @@ export default function FretronDashboardLayout({
           <div
             className={
               contentFull
-                ? "h-screen w-full overflow-hidden"
-                : "bg-slate-50 px-6 py-6 dark:bg-slate-900 lg:px-10 lg:py-8"
+                ? "h-screen w-full overflow-hidden page-fade"
+                : "bg-slate-50/70 px-6 py-6 dark:bg-slate-900/60 lg:px-10 lg:py-8 animate-fade-up"
             }
           >
             {children}

@@ -115,14 +115,14 @@ export default function UserDashboardHome() {
     <>
       <Link
         to="/user-dashboard/post-shipment"
-        className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white"
+        className="fretron-btn rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white"
       >
         Post Shipment
       </Link>
 
       <Link
         to="/user-dashboard/browse-routes"
-        className="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700"
+        className="fretron-btn rounded-2xl border border-slate-300 bg-white/70 px-4 py-2.5 text-sm font-medium text-slate-700"
       >
         Browse Routes
       </Link>
@@ -130,7 +130,7 @@ export default function UserDashboardHome() {
       <button
         type="button"
         onClick={handleSwitchToDriverMode}
-        className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700"
+        className="fretron-btn rounded-2xl border border-blue-200 bg-blue-50/70 px-4 py-2.5 text-sm font-medium text-blue-700"
       >
         Switch to Driver Mode
       </button>
@@ -158,7 +158,7 @@ export default function UserDashboardHome() {
         ].map(([label, value]) => (
           <article
             key={label}
-            className="fretron-card rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-800/50"
+            className="glass glass-hover animate-fade-up rounded-3xl p-5 shadow-sm"
           >
             <div className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</div>
             <div className="mt-3 text-3xl font-semibold text-slate-950 dark:text-slate-50">
@@ -169,7 +169,7 @@ export default function UserDashboardHome() {
       </section>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
+        <div className="glass glass-hover animate-fade-up rounded-3xl p-6 shadow-sm">
           <h2 className="text-xl font-semibold dark:text-slate-100">Recent shipment posts</h2>
 
           <div className="mt-4 space-y-3">
@@ -179,7 +179,7 @@ export default function UserDashboardHome() {
               data.recentShipments.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800"
+                  className="glass rounded-2xl px-4 py-3"
                 >
                   <div className="font-medium text-slate-900 dark:text-slate-100">
                     {item.shipment_code}
@@ -196,7 +196,7 @@ export default function UserDashboardHome() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
+        <div className="glass glass-hover animate-fade-up rounded-3xl p-6 shadow-sm">
           <h2 className="text-xl font-semibold dark:text-slate-100">Recent bookings</h2>
 
           <div className="mt-4 space-y-3">
@@ -206,7 +206,7 @@ export default function UserDashboardHome() {
               data.recentBookings.map((item, index) => (
                 <div
                   key={`${item.booking_code}-${index}`}
-                  className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800"
+                  className="glass rounded-2xl px-4 py-3"
                 >
                   <div className="font-medium text-slate-900 dark:text-slate-100">
                     {item.booking_code}

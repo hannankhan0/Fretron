@@ -50,7 +50,7 @@ export default function MyShipmentPostsPage() {
       title="My shipment posts"
       subtitle="See every shipment request you created and manage its lifecycle."
     >
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
+      <section className="glass rounded-3xl p-6 shadow-sm">
         {error && (
           <div className="mb-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">
             {error}
@@ -74,7 +74,7 @@ export default function MyShipmentPostsPage() {
           </div>
         ) : shipments.length === 0 ? (
           <div className="py-8 text-center">
-            <div className="animate-float mx-auto mb-3 text-4xl">📦</div>
+            <div className="animate-fade-in-scale mx-auto mb-3 text-4xl">📦</div>
             <p className="text-slate-500 dark:text-slate-400">No shipment posts found.</p>
           </div>
         ) : (

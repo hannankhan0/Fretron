@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Fretron — System Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .header { margin-bottom: 24px; }
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; letter-spacing: -0.5px; }
+    .subtitle { color: #64748b; font-size: 12px; margin-left: 22px; }
+    .diagram-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    svg { display: block; width: 100%; height: auto; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cyan   { background: #22d3ee; }
+    .emerald{ background: #34d399; }
+    .violet { background: #a78bfa; }
+    h3 { font-size: 11px; font-weight: 600; color: #e2e8f0; text-transform: uppercase; letter-spacing: 0.5px; }
+    ul { list-style: none; }
+    li { font-size: 11px; color: #64748b; padding: 2px 0; }
+    .footer { text-align: center; color: #334155; font-size: 10px; padding-top: 12px; border-top: 1px solid #0f172a; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="title-row">
+    <div class="pulse-dot"></div>
+    <h1>Fretron — System Architecture</h1>
+  </div>
+  <p class="subtitle">Intercity Logistics Exchange Platform · React 18 + Express.js + MySQL 8 + Clerk · Layered N-Tier + MVC</p>
+</div>
+
+<div class="diagram-card">
+<svg viewBox="0 0 960 750" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#475569"/>
+    </marker>
+    <marker id="arr-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#fb7185"/>
+    </marker>
+    <marker id="arr-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#22d3ee"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="750" fill="#020617"/>
+  <rect width="960" height="750" fill="url(#grid)"/>
+
+  <!-- ═══ ARROWS (behind everything) ═══ -->
+  <!-- Frontend → Backend -->
+  <line x1="480" y1="160" x2="480" y2="196" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="500" y="182" fill="#334155" font-size="8">HTTPS REST API</text>
+
+  <!-- Backend → MySQL -->
+  <path d="M 165 448 Q 165 460 165 465" stroke="#475569" stroke-width="1.5" fill="none" marker-end="url(#arr)" stroke-dasharray="4,2"/>
+
+  <!-- Backend → External -->
+  <path d="M 700 448 Q 700 460 700 465" stroke="#475569" stroke-width="1.5" fill="none" marker-end="url(#arr)" stroke-dasharray="4,2"/>
+
+  <!-- Clerk auth loop (rose dashed) -->
+  <path d="M 427 560 C 320 520 130 430 112 277" stroke="#fb7185" stroke-width="1" fill="none" marker-end="url(#arr-rose)" stroke-dasharray="3,3" opacity="0.5"/>
+
+  <!-- ═══ LAYER 1 — BROWSER ═══ -->
+  <rect x="20" y="38" width="920" height="120" rx="12" fill="rgba(8,51,68,0.12)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="36" y="54" fill="#22d3ee" font-size="8" font-weight="600" letter-spacing="1">BROWSER — PRESENTATION LAYER</text>
+
+  <!-- React + Vite -->
+  <rect x="38" y="62" width="158" height="62" rx="6" fill="#0f172a"/>
+  <rect x="38" y="62" width="158" height="62" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="117" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">React 18 + Vite</text>
+  <text x="117" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">SPA Framework</text>
+  <text x="117" y="114" fill="#64748b" font-size="8" text-anchor="middle">Clerk React SDK</text>
+
+  <!-- Tailwind CSS -->
+  <rect x="212" y="62" width="138" height="62" rx="6" fill="#0f172a"/>
+  <rect x="212" y="62" width="138" height="62" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="281" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">Tailwind CSS</text>
+  <text x="281" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">Design System</text>
+  <text x="281" y="114" fill="#64748b" font-size="8" text-anchor="middle">Dark Mode</text>
+
+  <!-- Leaflet + Maps -->
+  <rect x="366" y="62" width="148" height="62" rx="6" fill="#0f172a"/>
+  <rect x="366" y="62" width="148" height="62" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="440" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">Leaflet + OSM</text>
+  <text x="440" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">Interactive Maps</text>
+  <text x="440" y="114" fill="#64748b" font-size="8" text-anchor="middle">react-leaflet</text>
+
+  <!-- User Dashboard -->
+  <rect x="530" y="62" width="148" height="62" rx="6" fill="#0f172a"/>
+  <rect x="530" y="62" width="148" height="62" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="604" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">User Dashboard</text>
+  <text x="604" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">Shipper Portal</text>
+  <text x="604" y="114" fill="#64748b" font-size="8" text-anchor="middle">Post · Browse · Book</text>
+
+  <!-- Driver Dashboard -->
+  <rect x="694" y="62" width="208" height="62" rx="6" fill="#0f172a"/>
+  <rect x="694" y="62" width="208" height="62" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="798" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">Driver Dashboard</text>
+  <text x="798" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">Driver Portal</text>
+  <text x="798" y="114" fill="#64748b" font-size="8" text-anchor="middle">Routes · Cargo · Admin Panel</text>
+
+  <!-- ═══ LAYER 2 — EXPRESS SERVER ═══ -->
+  <rect x="20" y="200" width="920" height="245" rx="12" fill="rgba(6,78,59,0.10)" stroke="#34d399" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="36" y="216" fill="#34d399" font-size="8" font-weight="600" letter-spacing="1">EXPRESS.JS SERVER — API + MIDDLEWARE + BUSINESS LOGIC</text>
+
+  <!-- clerkMiddleware -->
+  <rect x="38" y="224" width="148" height="54" rx="6" fill="#0f172a"/>
+  <rect x="38" y="224" width="148" height="54" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="112" y="246" fill="white" font-size="10" font-weight="600" text-anchor="middle">clerkMiddleware</text>
+  <text x="112" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">Token Verification</text>
+  <text x="112" y="271" fill="#64748b" font-size="7" text-anchor="middle">Clerk SDK</text>
+  <line x1="186" y1="251" x2="198" y2="251" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arr-rose)"/>
+
+  <!-- requireAuth -->
+  <rect x="200" y="224" width="132" height="54" rx="6" fill="#0f172a"/>
+  <rect x="200" y="224" width="132" height="54" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="266" y="246" fill="white" font-size="10" font-weight="600" text-anchor="middle">requireAuth</text>
+  <text x="266" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">Auth Guard</text>
+  <text x="266" y="271" fill="#64748b" font-size="7" text-anchor="middle">Clerk-first · JWT fallback</text>
+  <line x1="332" y1="251" x2="344" y2="251" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arr-rose)"/>
+
+  <!-- requireApprovedRole -->
+  <rect x="346" y="224" width="168" height="54" rx="6" fill="#0f172a"/>
+  <rect x="346" y="224" width="168" height="54" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="430" y="246" fill="white" font-size="10" font-weight="600" text-anchor="middle">requireApprovedRole</text>
+  <text x="430" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">Role Enforcement</text>
+  <text x="430" y="271" fill="#64748b" font-size="7" text-anchor="middle">user / driver / admin</text>
+  <line x1="514" y1="251" x2="526" y2="251" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arr-rose)"/>
+
+  <!-- validateInput -->
+  <rect x="528" y="224" width="138" height="54" rx="6" fill="#0f172a"/>
+  <rect x="528" y="224" width="138" height="54" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="597" y="246" fill="white" font-size="10" font-weight="600" text-anchor="middle">validateInput</text>
+  <text x="597" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">BVA Validation</text>
+  <text x="597" y="271" fill="#64748b" font-size="7" text-anchor="middle">name / email / phone</text>
+  <line x1="666" y1="251" x2="678" y2="251" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Controllers -->
+  <rect x="680" y="224" width="242" height="54" rx="6" fill="#0f172a"/>
+  <rect x="680" y="224" width="242" height="54" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="801" y="243" fill="white" font-size="10" font-weight="600" text-anchor="middle">Route Controllers</text>
+  <text x="801" y="257" fill="#94a3b8" font-size="8" text-anchor="middle">/auth  /shipments  /routes  /bookings</text>
+  <text x="801" y="269" fill="#64748b" font-size="7" text-anchor="middle">/maps  /admin  /dashboard  /notifications</text>
+
+  <!-- Services divider -->
+  <line x1="38" y1="295" x2="922" y2="295" stroke="#1e293b" stroke-width="1"/>
+  <text x="480" y="308" fill="#334155" font-size="8" text-anchor="middle">Business Logic Services</text>
+
+  <!-- Booking Service -->
+  <rect x="38" y="315" width="160" height="60" rx="6" fill="#0f172a"/>
+  <rect x="38" y="315" width="160" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="118" y="336" fill="white" font-size="10" font-weight="600" text-anchor="middle">Booking Service</text>
+  <text x="118" y="350" fill="#94a3b8" font-size="8" text-anchor="middle">State Machine</text>
+  <text x="118" y="363" fill="#64748b" font-size="7" text-anchor="middle">pending→accepted→delivered</text>
+
+  <!-- Notification Service -->
+  <rect x="212" y="315" width="150" height="60" rx="6" fill="#0f172a"/>
+  <rect x="212" y="315" width="150" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="287" y="336" fill="white" font-size="10" font-weight="600" text-anchor="middle">Notification Svc</text>
+  <text x="287" y="350" fill="#94a3b8" font-size="8" text-anchor="middle">Insert-on-Event</text>
+  <text x="287" y="363" fill="#64748b" font-size="7" text-anchor="middle">booking lifecycle events</text>
+
+  <!-- Shipment / Route Svc -->
+  <rect x="376" y="315" width="160" height="60" rx="6" fill="#0f172a"/>
+  <rect x="376" y="315" width="160" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="456" y="336" fill="white" font-size="10" font-weight="600" text-anchor="middle">Shipment / Route</text>
+  <text x="456" y="350" fill="#94a3b8" font-size="8" text-anchor="middle">CRUD + Filtering</text>
+  <text x="456" y="363" fill="#64748b" font-size="7" text-anchor="middle">lat/lng · geo coordinates</text>
+
+  <!-- Dashboard Svc -->
+  <rect x="550" y="315" width="150" height="60" rx="6" fill="#0f172a"/>
+  <rect x="550" y="315" width="150" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="625" y="336" fill="white" font-size="10" font-weight="600" text-anchor="middle">Dashboard Svc</text>
+  <text x="625" y="350" fill="#94a3b8" font-size="8" text-anchor="middle">Stats Aggregation</text>
+  <text x="625" y="363" fill="#64748b" font-size="7" text-anchor="middle">user + driver panels</text>
+
+  <!-- Admin + Map Svc -->
+  <rect x="714" y="315" width="208" height="60" rx="6" fill="#0f172a"/>
+  <rect x="714" y="315" width="208" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="818" y="336" fill="white" font-size="10" font-weight="600" text-anchor="middle">Admin + Map Service</text>
+  <text x="818" y="350" fill="#94a3b8" font-size="8" text-anchor="middle">Approval · Geocoding Proxy</text>
+  <text x="818" y="363" fill="#64748b" font-size="7" text-anchor="middle">Photon primary → Nominatim fallback</text>
+
+  <!-- ═══ LAYER 3 — DATA ═══ -->
+
+  <!-- MySQL region -->
+  <rect x="20" y="462" width="295" height="188" rx="12" fill="rgba(76,29,149,0.12)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="36" y="478" fill="#a78bfa" font-size="8" font-weight="600" letter-spacing="1">MYSQL 8 — DATA LAYER</text>
+
+  <rect x="35" y="486" width="265" height="150" rx="6" fill="#0f172a"/>
+  <rect x="35" y="486" width="265" height="150" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="167" y="506" fill="white" font-size="11" font-weight="600" text-anchor="middle">mysql2 Pool</text>
+  <text x="55" y="525" fill="#94a3b8" font-size="9">● users</text>
+  <text x="175" y="525" fill="#94a3b8" font-size="9">● driver_profiles</text>
+  <text x="55" y="541" fill="#94a3b8" font-size="9">● shipment_posts</text>
+  <text x="175" y="541" fill="#94a3b8" font-size="9">● route_posts</text>
+  <text x="55" y="557" fill="#94a3b8" font-size="9">● bookings</text>
+  <text x="175" y="557" fill="#94a3b8" font-size="9">● notifications</text>
+  <text x="55" y="574" fill="#64748b" font-size="8">Parameterised queries</text>
+  <text x="55" y="588" fill="#64748b" font-size="8">TX on booking writes · no SQLi</text>
+  <text x="55" y="602" fill="#475569" font-size="7">init.sql · MySQL 8.0 · Cascading FK</text>
+  <text x="55" y="616" fill="#475569" font-size="7">Multer · driver doc uploads</text>
+
+  <!-- External Services region -->
+  <rect x="330" y="462" width="610" height="188" rx="12" fill="rgba(120,53,15,0.12)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="346" y="478" fill="#fbbf24" font-size="8" font-weight="600" letter-spacing="1">EXTERNAL SERVICES</text>
+
+  <!-- Clerk -->
+  <rect x="345" y="486" width="172" height="72" rx="6" fill="#0f172a"/>
+  <rect x="345" y="486" width="172" height="72" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="431" y="507" fill="white" font-size="11" font-weight="600" text-anchor="middle">Clerk</text>
+  <text x="431" y="522" fill="#94a3b8" font-size="9" text-anchor="middle">End-User Auth</text>
+  <text x="431" y="536" fill="#64748b" font-size="8" text-anchor="middle">OAuth · Magic Link · OTP</text>
+  <text x="431" y="550" fill="#475569" font-size="7" text-anchor="middle">clerk.com · @clerk/express</text>
+
+  <!-- Photon / Nominatim -->
+  <rect x="533" y="486" width="190" height="72" rx="6" fill="#0f172a"/>
+  <rect x="533" y="486" width="190" height="72" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="628" y="507" fill="white" font-size="10" font-weight="600" text-anchor="middle">Photon / Nominatim</text>
+  <text x="628" y="521" fill="#94a3b8" font-size="9" text-anchor="middle">Dual-source Geocoding</text>
+  <text x="628" y="535" fill="#64748b" font-size="8" text-anchor="middle">Pakistan bbox · Elasticsearch</text>
+  <text x="628" y="549" fill="#475569" font-size="7" text-anchor="middle">AbortSignal.timeout(4000) fallback</text>
+
+  <!-- OSRM -->
+  <rect x="739" y="486" width="185" height="72" rx="6" fill="#0f172a"/>
+  <rect x="739" y="486" width="185" height="72" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="831" y="507" fill="white" font-size="11" font-weight="600" text-anchor="middle">OSRM Router</text>
+  <text x="831" y="521" fill="#94a3b8" font-size="9" text-anchor="middle">Road Routing</text>
+  <text x="831" y="535" fill="#64748b" font-size="8" text-anchor="middle">Distance · Duration · GeoJSON</text>
+  <text x="831" y="549" fill="#475569" font-size="7" text-anchor="middle">3 route alternatives · polyline</text>
+
+  <!-- JWT Admin auth group (dashed rose) -->
+  <rect x="345" y="572" width="575" height="62" rx="6" fill="rgba(136,19,55,0.15)" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="632" y="592" fill="#fb7185" font-size="10" font-weight="600" text-anchor="middle">Security Group — Admin Authentication</text>
+  <text x="632" y="607" fill="#94a3b8" font-size="9" text-anchor="middle">JWT + HttpOnly Cookie · requireAdmin MW · bcrypt password hash</text>
+  <text x="632" y="620" fill="#64748b" font-size="8" text-anchor="middle">Separate from Clerk flow · Admin-only: POST /admin/login · /admin/*</text>
+
+  <!-- ═══ LEGEND ═══ -->
+  <rect x="20" y="668" width="920" height="58" rx="8" fill="rgba(15,23,42,0.9)" stroke="#1e293b" stroke-width="1"/>
+  <text x="40" y="684" fill="#475569" font-size="8" font-weight="600" letter-spacing="1">LEGEND</text>
+
+  <rect x="40" y="691" width="11" height="11" rx="2" fill="rgba(8,51,68,0.6)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="56" y="701" fill="#94a3b8" font-size="9">Frontend</text>
+
+  <rect x="135" y="691" width="11" height="11" rx="2" fill="rgba(6,78,59,0.6)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="151" y="701" fill="#94a3b8" font-size="9">Backend</text>
+
+  <rect x="225" y="691" width="11" height="11" rx="2" fill="rgba(76,29,149,0.6)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="241" y="701" fill="#94a3b8" font-size="9">Database</text>
+
+  <rect x="320" y="691" width="11" height="11" rx="2" fill="rgba(136,19,55,0.6)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="336" y="701" fill="#94a3b8" font-size="9">Security / Auth</text>
+
+  <rect x="445" y="691" width="11" height="11" rx="2" fill="rgba(120,53,15,0.5)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="461" y="701" fill="#94a3b8" font-size="9">External Service</text>
+
+  <line x1="575" y1="697" x2="608" y2="697" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="614" y="701" fill="#94a3b8" font-size="9">Layer Boundary</text>
+
+  <line x1="725" y1="697" x2="758" y2="697" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>
+  <text x="764" y="701" fill="#94a3b8" font-size="9">Auth Flow</text>
+
+  <line x1="845" y1="697" x2="878" y2="697" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="884" y="701" fill="#94a3b8" font-size="9">Data Flow</text>
+
+  <!-- Tier labels on right edge -->
+  <text x="948" y="103" fill="#22d3ee" font-size="8" text-anchor="end" opacity="0.5" transform="rotate(-90 948 103)">LAYER 1</text>
+  <text x="948" y="323" fill="#34d399" font-size="8" text-anchor="end" opacity="0.5" transform="rotate(-90 948 323)">LAYER 2</text>
+  <text x="948" y="560" fill="#a78bfa" font-size="8" text-anchor="end" opacity="0.5" transform="rotate(-90 948 560)">LAYER 3</text>
+
+</svg>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot cyan"></div>
+      <h3>Frontend Stack</h3>
+    </div>
+    <ul>
+      <li>• React 18 + Vite SPA</li>
+      <li>• Tailwind CSS + dark mode</li>
+      <li>• Leaflet + react-leaflet maps</li>
+      <li>• Clerk React SDK (OAuth)</li>
+      <li>• GPS watchPosition ≤20 m</li>
+      <li>• Photon geocoder search UI</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot emerald"></div>
+      <h3>Backend Stack</h3>
+    </div>
+    <ul>
+      <li>• Node.js + Express.js REST API</li>
+      <li>• Clerk MW + JWT admin session</li>
+      <li>• Booking state machine (5 states)</li>
+      <li>• 17 REST endpoints · role-guarded</li>
+      <li>• mysql2 pool + transaction safety</li>
+      <li>• BVA-validated input · error handler</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot violet"></div>
+      <h3>Data & Integrations</h3>
+    </div>
+    <ul>
+      <li>• MySQL 8 · 6 core tables</li>
+      <li>• Clerk — OAuth + Magic Link + OTP</li>
+      <li>• Photon + Nominatim geocoding</li>
+      <li>• OSRM · 3 route alternatives</li>
+      <li>• Parameterised queries (no SQLi)</li>
+      <li>• Multer · driver doc uploads</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  Fretron Architecture Diagram · React + Node.js + MySQL 8 + Clerk · SEECS NUST Spring 2026 · Layered N-Tier + MVC Pattern
+</div>
+
+</body>
+</html>

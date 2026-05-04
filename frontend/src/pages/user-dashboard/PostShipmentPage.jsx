@@ -19,7 +19,7 @@ function Field({ label, required, children, hint }) {
 }
 
 const INPUT_CLS =
-  "fretron-input w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-500";
+  "fretron-input glass-input w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-500";
 
 const SELECT_CLS = INPUT_CLS;
 
@@ -105,7 +105,7 @@ function ShipmentDetailsForm({ mapData, onBack }) {
         }),
       });
 
-      navigate("/user-dashboard/my-shipments");
+      navigate("/user-dashboard/shipment-posts");
     } catch (err) {
       setError(err.message || "Failed to post shipment. Please try again.");
     } finally {
@@ -115,7 +115,7 @@ function ShipmentDetailsForm({ mapData, onBack }) {
 
   return (
     <UserDashboardShell>
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="glass glass-shimmer mx-auto max-w-2xl rounded-3xl px-4 py-8 shadow-sm">
         {/* Header */}
         <div className="mb-6">
           <button
@@ -133,7 +133,7 @@ function ShipmentDetailsForm({ mapData, onBack }) {
           </h1>
 
           {/* Route summary pill */}
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-sm">
             <span className="font-medium text-green-700 dark:text-green-400">
               {mapData.pickup.name || mapData.pickup.city}
             </span>
@@ -281,7 +281,7 @@ function ShipmentDetailsForm({ mapData, onBack }) {
             <button
               type="submit"
               disabled={submitting || !apiReady}
-              className="w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="fretron-btn w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Posting…" : "Post shipment →"}
             </button>

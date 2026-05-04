@@ -58,7 +58,7 @@ export default function MyRoutePostsPage() {
         </div>
       )}
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800/50">
+      <section className="glass rounded-3xl p-6 shadow-sm">
         {loading ? (
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
@@ -76,7 +76,7 @@ export default function MyRoutePostsPage() {
           </div>
         ) : routes.length === 0 ? (
           <div className="py-8 text-center">
-            <div className="animate-float mx-auto mb-3 text-4xl">🗺️</div>
+            <div className="animate-fade-in-scale mx-auto mb-3 text-4xl">🗺️</div>
             <p className="text-slate-500 dark:text-slate-400">No route posts found.</p>
           </div>
         ) : (

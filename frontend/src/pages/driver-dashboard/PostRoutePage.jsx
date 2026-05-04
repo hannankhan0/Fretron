@@ -228,10 +228,10 @@ export default function PostRoutePage() {
       <div className="flex h-screen w-full overflow-hidden">
 
         {/* ── LEFT PANEL ── */}
-        <aside className="w-[460px] flex-none overflow-y-auto border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <aside className="w-[460px] flex-none overflow-y-auto border-r border-slate-200/60 glass glass-shimmer dark:border-slate-800">
 
           {/* Sticky header */}
-          <div className="sticky top-0 z-10 border-b border-slate-100 bg-white px-6 pb-4 pt-6 dark:border-slate-800 dark:bg-slate-900">
+          <div className="sticky top-0 z-10 glass-header border-b border-white/40 px-6 pb-4 pt-6 dark:border-slate-800">
             <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-blue-600">
               Driver Dashboard
             </div>
@@ -282,7 +282,7 @@ export default function PostRoutePage() {
 
               {/* Custom stops */}
               {originLocation && destLocation && (
-                <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+                <div className="mt-3 rounded-2xl glass p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Custom stops (optional)
@@ -331,7 +331,7 @@ export default function PostRoutePage() {
                       {waypoints.map((wp, i) => (
                         <li
                           key={i}
-                          className="flex items-center gap-2 rounded-xl border border-orange-100 bg-orange-50 px-3 py-2 text-xs dark:border-orange-900/40 dark:bg-orange-950/20"
+                          className="flex items-center gap-2 rounded-xl border border-orange-100/70 bg-orange-50/60 px-3 py-2 text-xs dark:border-orange-900/40 dark:bg-orange-950/20"
                         >
                           <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
                             {i + 1}
@@ -383,8 +383,8 @@ export default function PostRoutePage() {
                         onClick={() => setSelectedRouteIdx(i)}
                         className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
                           selectedRouteIdx === i
-                            ? "border-blue-500 bg-blue-50 shadow-md shadow-blue-100/60 dark:border-blue-600 dark:bg-blue-950/40"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                            ? "border-blue-500 bg-blue-50/70 shadow-md shadow-blue-100/60 dark:border-blue-600 dark:bg-blue-950/40"
+                            : "border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-800/70 dark:hover:bg-slate-700"
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -450,7 +450,7 @@ export default function PostRoutePage() {
                     value={form.vehicleType}
                     onChange={handleChange}
                     required
-                    className="fretron-input w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="fretron-input glass-input w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100"
                   >
                     <option value="">Select vehicle type</option>
                     {VEHICLE_TYPES.map((vt) => <option key={vt} value={vt}>{vt}</option>)}
@@ -485,7 +485,7 @@ export default function PostRoutePage() {
                     value={form.pricingModel}
                     onChange={handleChange}
                     required
-                    className="fretron-input w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="fretron-input glass-input w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100"
                   >
                     <option value="">Select model</option>
                     {PRICING_MODELS.map((pm) => <option key={pm} value={pm}>{pm}</option>)}
@@ -528,7 +528,7 @@ export default function PostRoutePage() {
                     value={form.operationalNotes}
                     onChange={handleChange}
                     placeholder="Any extra details for potential shippers…"
-                    className="fretron-input w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="fretron-input glass-input w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100"
                   />
                 </div>
 
@@ -540,7 +540,7 @@ export default function PostRoutePage() {
                     name="status"
                     value={form.status}
                     onChange={handleChange}
-                    className="fretron-input w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="fretron-input glass-input w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100"
                   >
                     <option value="published">Published (visible to shippers)</option>
                     <option value="draft">Draft (hidden)</option>
@@ -646,14 +646,14 @@ export default function PostRoutePage() {
 
           {/* Hint when map is empty */}
           {!originLocation && !destLocation && (
-            <div className="pointer-events-none absolute left-1/2 top-8 z-[500] -translate-x-1/2 rounded-2xl bg-slate-900/80 px-5 py-3 text-sm font-medium text-white shadow-xl backdrop-blur-sm">
+            <div className="pointer-events-none absolute left-1/2 top-8 z-[500] -translate-x-1/2 rounded-2xl glass-dark px-5 py-3 text-sm font-medium text-white shadow-xl">
               Search cities in the left panel to see your route here
             </div>
           )}
 
           {/* Route summary badge */}
           {selectedRoute && (
-            <div className="absolute right-4 top-4 z-[500] rounded-2xl bg-white/95 px-4 py-3 shadow-xl backdrop-blur-sm dark:bg-slate-900/95">
+            <div className="absolute right-4 top-4 z-[500] glass rounded-2xl px-4 py-3 shadow-xl">
               <div className="text-xs font-bold uppercase tracking-wide text-blue-600">
                 {ROUTE_LABELS[selectedRouteIdx]}
               </div>
@@ -695,7 +695,7 @@ function Field({ label, colSpan, required, ...props }) {
       <input
         {...props}
         required={required}
-        className="fretron-input w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+        className="fretron-input glass-input w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-600 dark:text-slate-100"
       />
     </label>
   );

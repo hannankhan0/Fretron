@@ -191,7 +191,7 @@ export default function DriverSignup() {
       default:
         return (
           <div className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+            <div className="glass rounded-3xl p-5 text-sm text-slate-700">
               <div className="grid gap-3 sm:grid-cols-2">
                 <Summary label="Name" value={formData.fullName} />
                 <Summary label="Email" value={formData.email} />
@@ -221,8 +221,8 @@ export default function DriverSignup() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_45%,#f8fafc_100%)] text-slate-900">
-      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-slate-50 text-slate-900 mesh-gradient page-fade">
+      <header className="border-b border-white/50 glass-header">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
           <Link to="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-600 text-sm font-semibold text-white shadow-sm">F</div>
@@ -238,7 +238,7 @@ export default function DriverSignup() {
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-10 lg:px-8 lg:py-14">
-        <section className="rounded-[36px] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/70 lg:p-10">
+        <section className="glass glass-shimmer rounded-[36px] p-8 shadow-xl shadow-slate-200/60 animate-fade-up lg:p-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">Driver Application</div>
           <h1 className="mt-6 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Apply as a driver partner</h1>
           <p className="mt-3 text-base leading-7 text-slate-600">Submit your details step by step. Fretron admin will verify your application before activating your driver account.</p>
@@ -248,7 +248,7 @@ export default function DriverSignup() {
               <span>Step {step + 1} of {steps.length}</span>
               <span>{steps[step]}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-2 overflow-hidden rounded-full bg-white/70">
               <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: progress }} />
             </div>
           </div>
@@ -260,11 +260,11 @@ export default function DriverSignup() {
             {success && <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{success}</div>}
 
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-between">
-              <button type="button" onClick={prevStep} disabled={step === 0 || loading} className="rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">Back</button>
+              <button type="button" onClick={prevStep} disabled={step === 0 || loading} className="fretron-btn rounded-2xl border border-slate-300 bg-white/70 px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50">Back</button>
               {step < steps.length - 1 ? (
-                <button type="button" onClick={nextStep} className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">Continue</button>
+                <button type="button" onClick={nextStep} className="fretron-btn rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">Continue</button>
               ) : (
-                <button type="submit" disabled={loading} className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Submitting Application..." : "Submit Driver Application"}</button>
+                <button type="submit" disabled={loading} className="fretron-btn rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Submitting Application..." : "Submit Driver Application"}</button>
               )}
             </div>
           </form>
@@ -278,7 +278,7 @@ function Field({ label, ...props }) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
-      <input {...props} className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
+      <input {...props} className="fretron-input glass-input w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
     </label>
   );
 }
@@ -287,7 +287,7 @@ function SelectField({ label, options, ...props }) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
-      <select {...props} className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+      <select {...props} className="fretron-input glass-input w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
         <option value="">Select an option</option>
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
@@ -299,7 +299,7 @@ function FileField({ label, name, onChange }) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
-      <input type="file" name={name} onChange={onChange} accept="image/*,.pdf" className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition file:mr-4 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
+      <input type="file" name={name} onChange={onChange} accept="image/*,.pdf" className="fretron-input glass-input w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition file:mr-4 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100" />
     </label>
   );
 }

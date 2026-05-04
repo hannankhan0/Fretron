@@ -23,9 +23,9 @@ export default function AdminLayout({ title, subtitle, children }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900 mesh-gradient page-fade">
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="border-r border-slate-200 bg-slate-950 px-6 py-8 text-white">
+        <aside className="border-r border-white/10 glass-sidebar px-6 py-8 text-white">
           <Link to="/admin" className="mb-8 flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-semibold">F</div>
             <div>
@@ -41,8 +41,8 @@ export default function AdminLayout({ title, subtitle, children }) {
                 to={item.to}
                 end={item.to === '/admin'}
                 className={({ isActive }) =>
-                  `block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    isActive ? 'bg-white text-slate-950' : 'text-slate-200 hover:bg-slate-800'
+                  `nav-glow block rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive ? 'bg-white/90 text-slate-950 shadow-lg shadow-slate-900/20' : 'text-slate-200 hover:bg-white/10'
                   }`
                 }
               >
@@ -53,14 +53,14 @@ export default function AdminLayout({ title, subtitle, children }) {
 
           <button
             onClick={handleLogout}
-            className="mt-10 w-full rounded-xl border border-slate-700 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-slate-800"
+            className="mt-10 w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10"
           >
             Logout
           </button>
         </aside>
 
         <main className="px-5 py-6 sm:px-8">
-          <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-6 rounded-3xl glass glass-hover p-6 shadow-sm animate-fade-up">
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
             {subtitle ? <p className="mt-2 text-sm text-slate-600">{subtitle}</p> : null}
           </div>
